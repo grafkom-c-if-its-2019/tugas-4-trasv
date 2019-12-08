@@ -209,37 +209,106 @@
         gl.drawArrays(type, 0, n);
       }
 
-        function render() {
+      function drawCube(type,vertices,n) {
+        var vertexBufferObject = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBufferObject);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+    
+        vPosition = gl.getAttribLocation(program, 'vPosition');
+        vNormal = gl.getAttribLocation(program, 'vNormal');
+        vTexCoord = gl.getAttribLocation(program, 'vTexCoord');
 
-            gl.useProgram(program2);
-            // Bersihkan layar jadi hitam
-            gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        gl.vertexAttribPointer(
+          vPosition,   //variable yang memegang posisis attribute di shader
+          3,          // jumlah elemen per atribut vPosition
+          gl.FLOAT,   // tipe data atribut
+          gl.FALSE,
+          11 * Float32Array.BYTES_PER_ELEMENT, // ukuran byte tiap vertex (overall)
+          0                                    // offset dari posisi elemen di array
+        );
+    
+        gl.vertexAttribPointer(
+          vNormal,
+          3,
+          gl.FLOAT,
+          gl.FALSE,
+          11 * Float32Array.BYTES_PER_ELEMENT,
+          6 * Float32Array.BYTES_PER_ELEMENT
+        );
+    
+        gl.vertexAttribPointer(
+          vTexCoord,
+          2,
+          gl.FLOAT,
+          gl.FALSE,
+          11 * Float32Array.BYTES_PER_ELEMENT,
+          9 * Float32Array.BYTES_PER_ELEMENT
+        );
+    
+        gl.enableVertexAttribArray(vPosition);
+        gl.enableVertexAttribArray(vNormal);
+        gl.enableVertexAttribArray(vTexCoord);
+        gl.drawArrays(type, 0, n);
+      }
 
-            // Bersihkan buffernya canvas
-            gl.clear(gl.COLOR_BUFFER_BIT);
+      function render(){
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    
+        // Perhitungan modelMatrix untuk vektor normal
+        var nm = glMatrix.mat3.create();
+        glMatrix.mat3.normalFromMat4(nm, mm);
+        gl.uniformMatrix3fv(nmLoc, false, nm);
+    
+        glMatrix.mat4.lookAt(vm,
+          [camera.x, camera.y, camera.z], // di mana posisi kamera (posisi)
+          [0.0, 0.0, -2.0], // ke mana kamera menghadap (vektor)
+          [0.0, 1.0, 0.0]  // ke mana arah atas kamera (vektor)
+        );
+        gl.uniformMatrix4fv(vmLoc, false, vm);
+    
+            
+        gl.uniformMatrix4fv(mmLoc, false, mm);
 
-            if (trans1[0] >= 0.4 * 0.8 || trans1[0] <= -0.3 * 0.8) {
-                X1 *= -1;
-            }
-            trans1[0] += X1;
+        if (trans[0] >= (0.7 - Math.abs(0.2 * 0.7 * scaleM))) X = -1.0;
+        else if (trans[0] <= (-0.7 + Math.abs(0.2 * 0.7 * scaleM))) X = 1.0;
+        trans[0] += 0.009 * X;
 
-            if (trans1[1] >= 0.6 * 0.8 || trans1[1] <= -0.8 * 0.8) {
-                Y1 *= -1;
-            }
-            trans1[1] += Y1;
+        if (trans[1] >= (0.7 - (0.3 * 0.7))) Y = -1.0;
+        else if (trans[1] <= (-0.7 + (0.3 * 0.7))) Y = 1.0;
+        trans[1] += 0.010 * Y;
 
-            if (trans1[2] >= 0.7 * 0.8 || trans1[2] <= -0.6 * 0.8) {
-                Z1 *= -1;
-            }
-            trans1[2] += Z1;
+        if (trans[2] >= (0.7 - Math.abs(0.2 * 0.7 * scaleM))) Z = -1.0;
+        else if (trans[2] <= (-0.7 + Math.abs(0.2 * 0.7 * scaleM))) Z = 1.0;
+        trans[2] += 0.011 * Z;
+    
+        flag = 0;
+        gl.uniform1i(flagUniformLocation, flag);
+        gl.uniform1i(fFlagUniformLocation, flag);
+        drawCube(gl.TRIANGLES, Kubus, 30)
+    
+        gl.disableVertexAttribArray(vNormal);
+        gl.disableVertexAttribArray(vTexCoord);
+    
+        //animasi refleksi
+        if (scaleM >= 1.0) lebar = -1.0;
+        else if (scaleM <= -1.0) lebar = 1.0;
+        
+        scaleM += 0.0069 * lebar;
+        gl.uniform1f(scaleMLoc, scaleM);
+    
+        // arah cahaya berdasarkan koordinat huruf
+        dd = glMatrix.vec3.fromValues(trans[0], trans[1], trans[2]);  // xyz
+        gl.uniform3fv(ddLoc, dd);
 
-            gl.uniform3fv(transLoc1, trans1);
-            thetaA1[1] += 0.149;
-            gl.uniform3fv(thetaLoc1, thetaA1);
-            // gl.uniform1f(scaleYLocation, scaleY);
+        flag = 1;
+        gl.uniform1i(flagUniformLocation, flag);
+        gl.uniform1i(fFlagUniformLocation, flag);
+        drawShapes(gl.TRIANGLES, triangleVertices2,12);
 
-            //huruf t
-            drawShapes(gl.TRIANGLES, triangleVertices2, 12);
-            requestAnimationFrame(render);
-        };
+
+        gl.disableVertexAttribArray(vColor);
+        gl.enable(gl.DEPTH_TEST);
+        requestAnimationFrame(render);
+      }
+      
 })();
