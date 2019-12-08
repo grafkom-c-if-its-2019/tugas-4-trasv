@@ -1,18 +1,49 @@
-//precision mediump float;
+precision mediump float;
 
-attribute vec2 vPosition;
+attribute vec3 vPosition;
 attribute vec3 vColor;
+attribute vec3 vNormal;
+attribute vec2 vTexCoord;
+
+varying vec3 fNormal;
 varying vec3 fColor;
-uniform float theta;
+varying vec3 fPosition;
+varying vec2 fTexCoord;
+
+uniform float scaleM;
+uniform vec3 trans;
+uniform int flag;
+
+uniform mat4 modelMatrix;
+uniform mat4 viewMatrix;
+uniform mat4 projectionMatrix;
+uniform mat3 normalMatrix;
 
 void main() {
-  fColor = vColor;
-
-  mat4 RotateM = mat4(
-    cos(theta), sin(theta), 0.0, +0.8*cos(theta) -0.7,
-    -sin(theta), cos(theta), 0.0, -0.95*sin(theta)+0.25,
+  mat4 ScaleMatrix = mat4(
+    scaleM, 0.0, 0.0, 0.0,
+    0.0, 1.0, 0.0, 0.0,
     0.0, 0.0, 1.0, 0.0,
     0.0, 0.0, 0.0, 1.0
   );
-  gl_Position = vec4(vPosition, 0.0, 1.0) * RotateM;
+
+  mat4 TranslationMatrix = mat4(
+    0.8, 0.0, 0.0, 0.0,
+    0.0, 0.8, 0.0, 0.0,
+    0.0, 0.0, 0.8, 0.0,
+    trans.x, trans.y, trans.z, 1.0
+  );
+
+  if(flag == 0){
+    gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(vPosition, 1.0);
+    fTexCoord = vTexCoord;
+
+    fNormal = normalize(normalMatrix * vNormal);
+
+    fPosition = vPosition;
+  }
+  else if(flag == 1){
+    gl_Position = projectionMatrix * viewMatrix * modelMatrix *TranslationMatrix * ScaleMatrix * vec4(vPosition, 1.0);
+    fColor = vColor;
+  }
 }
