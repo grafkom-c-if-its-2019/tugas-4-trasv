@@ -310,7 +310,7 @@
         gl.enable(gl.DEPTH_TEST);
         requestAnimationFrame(render);
       }
-      
+
       //init tekstur
       // Uniform untuk tekstur
       var sampler0Loc = gl.getUniformLocation(program, 'sampler0');
@@ -386,4 +386,5 @@
       gl.enable(gl.DEPTH_TEST);
   
       render();
+    }
 })();
