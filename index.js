@@ -72,6 +72,51 @@
             0.1, -0.8, 1.0, 1.0, 1.0
         ];
 
+        
+        function quad(a, b, c, d) {
+            var indices = [a, b, c, a, c, d];
+            for (var i=0; i < indices.length; i++) {
+              for (var j=0; j < 3; j++) {
+                Kubus.push(cubePoints[indices[i]][j]);
+              }
+              for (var j=0; j < 3; j++) {
+                Kubus.push(cubeColors[a][j]);
+              }
+              for (var j=0; j < 3; j++) {
+                Kubus.push(-1*cubeNormals[a][j]);
+              }
+              switch (indices[i]) {
+                case a:
+                  Kubus.push((a-2)*0.125);
+                  Kubus.push(0.0);
+                  break;
+                case b:
+                  Kubus.push((a-2)*0.125);
+                  Kubus.push(1.0);
+                  break;
+                case c:
+                  Kubus.push((a-1)*0.125);
+                  Kubus.push(1.0);
+                  break;
+                case d:
+                  Kubus.push((a-1)*0.125);
+                  Kubus.push(0.0);
+                  break;
+              
+                default:
+                  break;
+              }
+            }
+          }
+      
+        // quad(1, 0, 3, 2);
+        quad(2, 3, 7, 6);
+        quad(3, 0, 4, 7);
+        quad(4, 5, 6, 7);
+        quad(5, 4, 0, 1);
+        quad(6, 5, 1, 2);
+
+
         function drawShapes(type, vertices, n) {
             var vertexBufferObject = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, vertexBufferObject);
