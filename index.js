@@ -1,49 +1,60 @@
 (function() {
 
-    var canvas, gl, program, program2;
     glUtils.SL.init({ callback: function() { main(); } });
 
     function main() {
 
-        canvas = document.getElementById("glcanvas");
-        gl = glUtils.checkWebGL(canvas);
-
-        window.addEventListener('resize', resizer);
-
+        var mmLoc, mm, vmLoc, vm, pmLoc, pm, camera;
+        var dcLoc, dc, ddLoc, dd, acLoc, ac, nmLoc;
+        var vPosition, vColor, vNormal, vTexCoord;
+        var flag, flagUniformLocation, fFlagUniformLocation;
+    
+        var canvas = document.getElementById("glcanvas");
+        var gl = glUtils.checkWebGL(canvas);
+    
         var vertexShader = glUtils.getShader(gl, gl.VERTEX_SHADER, glUtils.SL.Shaders.v1.vertex);
         var fragmentShader = glUtils.getShader(gl, gl.FRAGMENT_SHADER, glUtils.SL.Shaders.v1.fragment);
-        program = glUtils.createProgram(gl, vertexShader, fragmentShader);
-
-        var vertexShader2 = glUtils.getShader(gl, gl.VERTEX_SHADER, glUtils.SL.Shaders.v2.vertex);
-        program2 = glUtils.createProgram(gl, vertexShader2, fragmentShader);
-
-        var vertexShader3 = glUtils.getShader(gl, gl.VERTEX_SHADER, glUtils.SL.Shaders.v3.vertex);
-        program3 = glUtils.createProgram(gl, vertexShader3, fragmentShader);
-
-        resizer();
-
-        //kubus
-        var kubus = ([
-            //BAWAH
-            -0.3, -0.8, 0.7, 255, 255, 255,
-            0.4, -0.8, 0.7, 255, 255, 255,
-            0.4, -0.8, 0.7, 255, 255, 255,
-            0.4, -0.8, -0.6, 255, 255, 255,
-            0.4, -0.8, -0.6, 255, 255, 255, -0.3, -0.8, -0.6, 255, 255, 255, -0.3, -0.8, -0.6, 255, 255, 255, -0.3, -0.8, 0.7, 255, 255, 255,
-            //ATAS
-            -0.3, 0.6, 0.7, 255, 255, 255,
-            0.4, 0.6, 0.7, 255, 255, 255,
-            0.4, 0.6, 0.7, 255, 255, 255,
-            0.4, 0.6, -0.6, 255, 255, 255,
-            0.4, 0.6, -0.6, 255, 255, 255, -0.3, 0.6, -0.6, 255, 255, 255, -0.3, 0.6, -0.6, 255, 255, 255, -0.3, 0.6, 0.7, 255, 255, 255,
-            //BELAKANG
-            -0.3, -0.8, 0.7, 255, 255, 255, -0.3, 0.6, 0.7, 255, 255, 255,
-            0.4, -0.8, 0.7, 255, 255, 255,
-            0.4, 0.6, 0.7, 255, 255, 255,
-            //DEPAN
-            0.4, -0.8, -0.6, 255, 255, 255,
-            0.4, 0.6, -0.6, 255, 255, 255, -0.3, -0.8, -0.6, 255, 255, 255, -0.3, 0.6, -0.6, 255, 255, 255
-        ]);
+        var program = glUtils.createProgram(gl, vertexShader, fragmentShader);
+        gl.useProgram(program);
+        
+        var transLoc = gl.getUniformLocation(program, 'trans');
+        var trans = [0, 0, 0]; 
+        var X = 1.0;
+        var Y = 1.0;
+        var Z = 1.0;
+        var lebar = 1.0;
+    
+        var Kubus = [];
+        var cubePoints = [
+          [ -0.8, -0.8,  0.8 ],
+          [ -0.8,  0.8,  0.8 ],
+          [  0.8,  0.8,  0.8 ],
+          [  0.8, -0.8,  0.8 ],
+          [ -0.8, -0.8, -0.8 ],
+          [ -0.8,  0.8, -0.8 ],
+          [  0.8,  0.8, -0.8 ],
+          [  0.8, -0.8, -0.8 ]
+        ];
+        var cubeColors = [
+          [],
+          [1.0, 0.0, 0.0], // merah
+          [0.0, 1.0, 0.0], // hijau
+          [0.0, 0.0, 1.0], // biru
+          [1.0, 1.0, 1.0], // putih
+          [1.0, 0.5, 0.0], // oranye
+          [1.0, 1.0, 0.0], // kuning
+          []
+        ];
+        var cubeNormals = [
+          [],
+          [  0.0,  0.0,  1.0 ], // depan
+          [  1.0,  0.0,  0.0 ], // kanan
+          [  0.0, -1.0,  0.0 ], // bawah
+          [  0.0,  0.0, -1.0 ], // belakang
+          [ -1.0,  0.0,  0.0 ], // kiri
+          [  0.0,  1.0,  0.0 ], // atas
+          []
+        ];
 
         var triangleVertices2 = [
             // x, y,      r, g, b
