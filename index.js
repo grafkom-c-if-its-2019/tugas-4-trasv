@@ -172,8 +172,7 @@
         }
         document.addEventListener('keydown', onKeyDown);
 
-
-        function drawShapes(type, vertices, n) {
+      function drawShapes(type, vertices, n) {
         var vertexBufferObject = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, vertexBufferObject);
 
@@ -208,7 +207,7 @@
         gl.enableVertexAttribArray(vColor);
         gl.drawArrays(type, 0, n);
       }
-
+    
       function drawCube(type,vertices,n) {
         var vertexBufferObject = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, vertexBufferObject);
