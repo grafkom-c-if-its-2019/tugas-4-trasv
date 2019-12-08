@@ -117,7 +117,62 @@
         quad(5, 4, 0, 1);
         quad(6, 5, 1, 2);
 
+        var dragging, lastx, lasty;
+        function onMouseDown(event) {
+          var x = event.clientX;
+          var y = event.clientY;
+          var rect = event.target.getBoundingClientRect();
+          // Saat mouse diklik di area aktif browser,
+          //  maka flag dragging akan diaktifkan
+          if (
+            rect.left <= x &&
+            rect.right > x &&
+            rect.top <= y &&
+            rect.bottom > y
+          ) {
+            dragging = true;
+            lastx = x;
+            lasty = y;
+          }
+        }
+        function onMouseUp(event) {
+          // Ketika klik kiri mouse dilepas
+          dragging = false;
+        }
+        function onMouseMove(event) {
+          var x = event.clientX;
+          var y = event.clientY;
+          if (dragging) {
+            factor = 10 / canvas.height;
+            var dx = factor * (x - lastx);
+            var dy = factor * (y - lasty);
+            // Menggunakan dx dan dy untuk memutar kubus
+            glMatrix.mat4.rotateY(mm, mm, dx);
+            glMatrix.mat4.rotateX(mm, mm, dy);
+          }
+          lastx = x;
+          lasty = y;
+        }
+        document.addEventListener('mousedown', onMouseDown);
+        document.addEventListener('mouseup', onMouseUp);
+        document.addEventListener('mousemove', onMouseMove);
+    
+        function onKeyDown(event) {
+          if (event.keyCode == 83) thetaSpeed -= 0.01;       // key 's' google chrome
+          else if (event.keyCode == 87) thetaSpeed += 0.01;  // key 'w'
+          // if (event.keyCode == 173) thetaSpeed -= 0.01;       // key '-' firefox mozilla
+          // else if (event.keyCode == 61) thetaSpeed += 0.01;  // key '='
+          else if (event.keyCode == 48) thetaSpeed = 0;       // key '0'
+          if (event.keyCode == 190) camera.z -= 0.1;          // key '/'
+          else if (event.keyCode == 191) camera.z += 0.1;     // key '.'
+          if (event.keyCode == 37) camera.x -= 0.1;           // key kiri
+          else if (event.keyCode == 39) camera.x += 0.1;      // key kanan
+          if (event.keyCode == 38) camera.y += 0.1;           // key atas 
+          else if (event.keyCode == 40) camera.y -= 0.1;      // key Bawah
+        }
+        document.addEventListener('keydown', onKeyDown);
 
+        
         function drawShapes(type, vertices, n) {
             var vertexBufferObject = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, vertexBufferObject);
