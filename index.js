@@ -122,8 +122,6 @@
           var x = event.clientX;
           var y = event.clientY;
           var rect = event.target.getBoundingClientRect();
-          // Saat mouse diklik di area aktif browser,
-          //  maka flag dragging akan diaktifkan
           if (
             rect.left <= x &&
             rect.right > x &&
@@ -136,7 +134,6 @@
           }
         }
         function onMouseUp(event) {
-          // Ketika klik kiri mouse dilepas
           dragging = false;
         }
         function onMouseMove(event) {
@@ -146,7 +143,6 @@
             factor = 10 / canvas.height;
             var dx = factor * (x - lastx);
             var dy = factor * (y - lasty);
-            // Menggunakan dx dan dy untuk memutar kubus
             glMatrix.mat4.rotateY(mm, mm, dx);
             glMatrix.mat4.rotateX(mm, mm, dy);
           }
@@ -179,11 +175,11 @@
         var vPosition = gl.getAttribLocation(program, 'vPosition');
         var vColor = gl.getAttribLocation(program, 'vColor');
         gl.vertexAttribPointer(
-          vPosition, //variabel pemegang posisi atribut di shader
-          3,          // jumlah elemen per atribut
-          gl.FLOAT,   // tipe data atribut
+          vPosition,
+          3, 
+          gl.FLOAT,   
           gl.FALSE,
-          6 * Float32Array.BYTES_PER_ELEMENT, // ukuran byte tiap vertex
+          6 * Float32Array.BYTES_PER_ELEMENT,
           0
         );
         gl.vertexAttribPointer(
@@ -218,12 +214,12 @@
         vTexCoord = gl.getAttribLocation(program, 'vTexCoord');
 
         gl.vertexAttribPointer(
-          vPosition,   //variable yang memegang posisis attribute di shader
-          3,          // jumlah elemen per atribut vPosition
-          gl.FLOAT,   // tipe data atribut
+          vPosition, 
+          3, 
+          gl.FLOAT,  
           gl.FALSE,
-          11 * Float32Array.BYTES_PER_ELEMENT, // ukuran byte tiap vertex (overall)
-          0                                    // offset dari posisi elemen di array
+          11 * Float32Array.BYTES_PER_ELEMENT,
+          0  
         );
     
         gl.vertexAttribPointer(
@@ -253,15 +249,14 @@
       function render(){
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     
-        // Perhitungan modelMatrix untuk vektor normal
         var nm = glMatrix.mat3.create();
         glMatrix.mat3.normalFromMat4(nm, mm);
         gl.uniformMatrix3fv(nmLoc, false, nm);
     
         glMatrix.mat4.lookAt(vm,
-          [camera.x, camera.y, camera.z], // di mana posisi kamera (posisi)
-          [0.0, 0.0, -2.0], // ke mana kamera menghadap (vektor)
-          [0.0, 1.0, 0.0]  // ke mana arah atas kamera (vektor)
+          [camera.x, camera.y, camera.z],
+          [0.0, 0.0, -2.0],
+          [0.0, 1.0, 0.0]
         );
         gl.uniformMatrix4fv(vmLoc, false, vm);
     
@@ -287,16 +282,14 @@
     
         gl.disableVertexAttribArray(vNormal);
         gl.disableVertexAttribArray(vTexCoord);
-    
-        //animasi refleksi
+
         if (scaleM >= 1.0) lebar = -1.0;
         else if (scaleM <= -1.0) lebar = 1.0;
         
         scaleM += 0.0069 * lebar;
         gl.uniform1f(scaleMLoc, scaleM);
     
-        // arah cahaya berdasarkan koordinat huruf
-        dd = glMatrix.vec3.fromValues(trans[0], trans[1], trans[2]);  // xyz
+        dd = glMatrix.vec3.fromValues(trans[0], trans[1], trans[2]); 
         gl.uniform3fv(ddLoc, dd);
 
         flag = 1;
@@ -310,24 +303,18 @@
         requestAnimationFrame(render);
       }
 
-      //init tekstur
-      // Uniform untuk tekstur
       var sampler0Loc = gl.getUniformLocation(program, 'sampler0');
       gl.uniform1i(sampler0Loc, 0);
   
-      // Create a texture.
       var texture = gl.createTexture();
       gl.bindTexture(gl.TEXTURE_2D, texture);
-  
-      // Fill the texture with a 1x1 blue pixel.
+
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
                     new Uint8Array([0, 0, 255, 255]));
   
-      // Asynchronously load an image
       var image = new Image();
       image.src = "images/Untitled-1.jpg";
       image.addEventListener('load', function() {
-        // Now that the image has loaded make copy it to the texture.
         gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA,gl.UNSIGNED_BYTE, image);
         gl.generateMipmap(gl.TEXTURE_2D);
@@ -336,12 +323,10 @@
       theta = 0;
       thetaSpeed = 0.0;
   
-      // Definisi untuk matriks model
       mmLoc = gl.getUniformLocation(program, 'modelMatrix');
       mm = glMatrix.mat4.create();
       glMatrix.mat4.translate(mm, mm, [0.0, 0.0, -2.0]);
   
-      // Definisi untuk matrix view dan projection
       vmLoc = gl.getUniformLocation(program, 'viewMatrix');
       vm = glMatrix.mat4.create();
       pmLoc = gl.getUniformLocation(program, 'projectionMatrix');
@@ -349,10 +334,10 @@
   
       camera = {x: 0.0, y: 0.0, z:0.0};
       glMatrix.mat4.perspective(pm,
-        glMatrix.glMatrix.toRadian(90), // fovy dalam radian
-        canvas.width/canvas.height,     // aspect ratio
-        0.5,  // near
-        10.0, // far  
+        glMatrix.glMatrix.toRadian(90), 
+        canvas.width/canvas.height, 
+        0.5, 
+        10.0,  
       );
       gl.uniformMatrix4fv(pmLoc, false, pm);
       
@@ -367,9 +352,9 @@
       fFlagUniformLocation = gl.getUniformLocation(program, 'fFlag');
       gl.uniform1i(fFlagUniformLocation, flag);
   
-      // Uniform untuk pencahayaan
+   
       dcLoc = gl.getUniformLocation(program, 'diffuseColor');
-      dc = glMatrix.vec3.fromValues(1.0, 1.0, 1.0);  // rgb
+      dc = glMatrix.vec3.fromValues(1.0, 1.0, 1.0);
       gl.uniform3fv(dcLoc, dc);
       
       ddLoc = gl.getUniformLocation(program, 'diffusePosition');
@@ -377,8 +362,7 @@
       acLoc = gl.getUniformLocation(program, 'ambientColor');
       ac = glMatrix.vec3.fromValues(0.17, 0.40, 0.69);
       gl.uniform3fv(acLoc, ac);
-  
-      // Uniform untuk modelMatrix vektor normal
+
       nmLoc = gl.getUniformLocation(program, 'normalMatrix');
   
       gl.clearColor(0.0, 0.0, 0.0, 1.0);
