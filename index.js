@@ -311,4 +311,79 @@
         requestAnimationFrame(render);
       }
       
+      //init tekstur
+      // Uniform untuk tekstur
+      var sampler0Loc = gl.getUniformLocation(program, 'sampler0');
+      gl.uniform1i(sampler0Loc, 0);
+  
+      // Create a texture.
+      var texture = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+  
+      // Fill the texture with a 1x1 blue pixel.
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+                    new Uint8Array([0, 0, 255, 255]));
+  
+      // Asynchronously load an image
+      var image = new Image();
+      image.src = "images/Untitled-1.jpg";
+      image.addEventListener('load', function() {
+        // Now that the image has loaded make copy it to the texture.
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA,gl.UNSIGNED_BYTE, image);
+        gl.generateMipmap(gl.TEXTURE_2D);
+      });
+  
+      theta = 0;
+      thetaSpeed = 0.0;
+  
+      // Definisi untuk matriks model
+      mmLoc = gl.getUniformLocation(program, 'modelMatrix');
+      mm = glMatrix.mat4.create();
+      glMatrix.mat4.translate(mm, mm, [0.0, 0.0, -2.0]);
+  
+      // Definisi untuk matrix view dan projection
+      vmLoc = gl.getUniformLocation(program, 'viewMatrix');
+      vm = glMatrix.mat4.create();
+      pmLoc = gl.getUniformLocation(program, 'projectionMatrix');
+      pm = glMatrix.mat4.create();
+  
+      camera = {x: 0.0, y: 0.0, z:0.0};
+      glMatrix.mat4.perspective(pm,
+        glMatrix.glMatrix.toRadian(90), // fovy dalam radian
+        canvas.width/canvas.height,     // aspect ratio
+        0.5,  // near
+        10.0, // far  
+      );
+      gl.uniformMatrix4fv(pmLoc, false, pm);
+      
+      scaleMLoc = gl.getUniformLocation(program, 'scaleM');
+      scaleM = 1.0;
+      gl.uniform1f(scaleMLoc, scaleM);
+  
+      flagUniformLocation = gl.getUniformLocation(program, 'flag');
+      flag = 0;
+      gl.uniform1i(flagUniformLocation, flag);
+  
+      fFlagUniformLocation = gl.getUniformLocation(program, 'fFlag');
+      gl.uniform1i(fFlagUniformLocation, flag);
+  
+      // Uniform untuk pencahayaan
+      dcLoc = gl.getUniformLocation(program, 'diffuseColor');
+      dc = glMatrix.vec3.fromValues(1.0, 1.0, 1.0);  // rgb
+      gl.uniform3fv(dcLoc, dc);
+      
+      ddLoc = gl.getUniformLocation(program, 'diffusePosition');
+  
+      acLoc = gl.getUniformLocation(program, 'ambientColor');
+      ac = glMatrix.vec3.fromValues(0.17, 0.40, 0.069);
+      gl.uniform3fv(acLoc, ac);
+  
+      // Uniform untuk modelMatrix vektor normal
+      nmLoc = gl.getUniformLocation(program, 'normalMatrix');
+  
+      gl.clearColor(0.0, 0.0, 0.0, 1.0);
+      gl.enable(gl.DEPTH_TEST);
+  
+      render();
 })();
